@@ -1,0 +1,17 @@
+html
+	head
+		title Login
+	body
+		if(message)
+			h4 #{message}
+		form(action = "/login" method = "POST")
+			if(email && password)
+				input(name = "email" type = "text" required placeholder = "Email" value = "" + email)
+				input(name = "password" type = "password" required placeholder = "Password" value = ""+password)
+			else
+				input(name = "email" type = "text" required placeholder = "Email")
+				input(name = "password" type = "password" required placeholder = "Password")
+			button(type = "Submit") Log In
+
+		form(action = "/signup" method = "Get")
+			button(type = "Submit") SignUp

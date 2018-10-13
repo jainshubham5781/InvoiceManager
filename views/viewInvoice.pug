@@ -1,0 +1,78 @@
+html
+	head
+		script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js")
+		script
+			include js/viewInvoice.js
+		title Invoices
+	body
+		if(message)
+			h4 #{message}
+
+		if(invoiceResult)
+
+			//input(name = "testt" id ="testt" type = "text" value="ABC")
+
+			-var ob = JSON.parse(invoiceResult)
+			-var obj = JSON.parse(itemResult)
+			-for (var item in ob) {
+				ul
+					li= "InvoiceNumber: " + ob[item].invoiceNumber
+					li= "Date: " + ob[item].date
+
+					<div class="viewInvoice">
+						li= "CustomerName: " +  ob[item].custName
+						li= "CustomerAddress: " + ob[item].custAddress
+					</div>
+
+					<div class="editInvoice" hidden>
+						input(name = "custName" type = "text" required placeholder = "Customer Name" value = ob[item].custName)
+						input(name = "custAddress" type = "text" required placeholder = "Customer Address" value = ob[item].custAddress)
+					</div>
+
+					<br/>		
+					-var itemDetail;
+					-for (var item1 in obj) {
+						if(ob[item].invoiceNumber == obj[item1].invoiceNumber)
+							li= "Item Details"
+							-itemDetail = obj[item1].item
+							li= "ItemName | Quantity | Price | tax% | Discount | TotalAmount "
+							<hr/>
+							-for(var item2 in itemDetail){
+								<div class="viewInvoice">
+									li= itemDetail[item2].itemName + " | " + itemDetail[item2].quantity + " | " + itemDetail[item2].price + " | " + itemDetail[item2].tax + "% | " + itemDetail[item2].discount + " | " + itemDetail[item2].totalAmount
+								</div>
+							- } 
+							<hr/>
+					- }
+					<div class="viewInvoice">
+						li= "TotalAmount: " + ob[item].totalAmount
+						li= "PaidAmount: " + ob[item].paidAmount
+						li= "State: " + ob[item].state
+						li= "PendingAmount: " + (ob[item].totalAmount - ob[item].paidAmount)
+						<br/>
+
+						if(ob[item].state == "Draft")
+							input(name = "editButton" id="editButton" type="button" value="Edit Invoice")
+							<br/>
+						<br/>
+
+						form(action = "/downloadPdf" method = "Post")
+							input(name = "itemDetail" type = "text" hidden value=itemDetail)
+							button(type = "Submit" value = ob[item] name="invoiceDetail") Download Invoices
+
+						form(action = "/deleteInvoice" method = "Post")
+							button(type = "Submit" value=ob[item].invoiceNumber name="invoiceNumber") Delete Invoice
+					</div>
+
+					form(action = "/editInvoice" hidden method = "Post")
+								button(type = "Submit") Save
+	
+
+				<hr/>
+				<hr/>
+			- }	
+			
+	
+
+				
+

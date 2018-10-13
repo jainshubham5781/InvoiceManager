@@ -1,0 +1,17 @@
+html
+	head
+		title Home
+	body
+		if(message)
+			h4 #{message}
+		
+		form(action = "/createInvoice" method = "Get")
+			button(type = "Submit") Create Invoice
+
+		form(action = "/viewInvoice" method = "Get")
+			button(type = "Submit") View Invoices
+
+		form(action = "/logout" method = "Get")
+			button(type = "Submit") LogOut
+
+

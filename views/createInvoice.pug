@@ -1,0 +1,42 @@
+html
+	head
+		script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js")
+		script
+			include js/createInvoice.js
+		title Create Invoice
+	body
+		if(message)
+			h4 #{message}
+		form(action = "/createInvoice" method = "POST")
+			input(name = "custName" type = "text" required placeholder = "Customer Name")
+			input(name = "custAddress" type = "text" required placeholder = "Customer Address")
+			<hr/>
+			Add Items:
+			<br/>
+			input(name = "addItem" id="addItem" type="button" value="+Add")
+			<br/>
+			span#fooBar
+			<br/>
+			input(name = "itemName" type = "text" required placeholder = "Item Name")
+			input(name = "quantity" type = "Number" required placeholder = "Quantity")
+			input(name = "price" type = "Number" required placeholder = "Price")
+			input(name = "discount" type = "Number" required placeholder = "Discount")
+			input(name = "tax" type = "Number" required placeholder = "tax%")
+			<br/>
+			<hr/>
+			<br/>
+
+			input(name = "totalAmount" hidden type = "text" placeholder = "Total Amount")
+			input(name = "paidAmount" type = "text" placeholder = "Paid Amount")
+
+			<br/>
+			<br/>
+
+			select#state(name="state")
+				option Draft
+				option Sent
+
+			<br/>
+			<br/>	       
+			
+			button(type = "Submit") Create
