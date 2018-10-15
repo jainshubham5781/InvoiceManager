@@ -13,7 +13,6 @@ var helmet = require('helmet'); // secure apps by setting various HTTP headers
 var cors = require('cors'); // // enable CORS - Cross Origin Resource Sharing
 var compress = require('compression'); // gzip compression
 
-
 //var bcrypt = require('bcrypt'); // encryption
 //Passport
 
@@ -41,36 +40,15 @@ app.use(multer({dest: config.multerPath}).any());
 var logStream = fs.createWriteStream(path.join(__dirname,'access.log'), {flags: 'a'});
 app.use(morgan('tiny', {stream: logStream}));
 
-
-
 var server = app.listen(config.port, function(){
 	var host = server.address().address;
 	var port = server.address().port;
 	console.log(host + ":" + port);
 })
 
-// var io = require('socket.io').listen(server);
-
-// io.on('connection', function(socket){
-//   console.log("socket is connected");
-//   socket.broadcast.emit('hi');
-//   socket.emit('message', { message: 'welcome to the chat' });
-//     socket.on('send', function (data) {
-//       console.log(data);
-//         io.sockets.emit('message', data);
-//     });
-//   socket.on('disconnect', function(){
-//     console.log('socket disconnected');
-//   })
-// })
-
-
 mongoose.connect(config.mongoDBConnectionString);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
-
-
-
 
 //Set session and cookie
 app.use(cookieParser());

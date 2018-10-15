@@ -2,7 +2,6 @@ $(document).ready(function() {
 	var counter = 1;
 	var addItem = document.getElementById('addItem');
 	addItem.onclick = function(){
-	$('#itemName').val("asasasa");
 		var foo = document.getElementById("fooBar");
 	
 		var element = document.createElement("input");

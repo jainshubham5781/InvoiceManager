@@ -41,6 +41,23 @@ InvoiceSchema.statics.saveInvoice = function(query, update, options){
 	});
 }
 
+
+InvoiceSchema.statics.editInvoice = function(query, update){
+	return new Promise(function(resolve, reject){
+		Invoice.findOneAndUpdate(query, update)
+		.exec(function(err, result){
+			if(err){
+				reject(err);
+			}
+			else{
+				resolve(result);
+			}
+		});
+	});
+}
+
+
+
 InvoiceSchema.statics.findInvoiceByEmail = function(query, projection, options){
 	return new Promise(function(resolve, reject){
 		Invoice.findOne(query, projection)

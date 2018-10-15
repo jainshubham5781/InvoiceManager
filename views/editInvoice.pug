@@ -1,0 +1,48 @@
+html
+	head
+		script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js")
+		script
+			include js/createInvoice.js
+		title Edit Invoice
+	body
+		if(message)
+			h4 #{message}
+		form(action = "/editInvoice" method = "POST")
+			-var ob = JSON.parse(invoiceResult)
+			-var obj = JSON.parse(itemResult)
+			input(name = "invoiceNumber" type = "text" hidden value=ob.invoiceNumber)
+			
+			input(name = "custName" type = "text" required placeholder = "Customer Name" value=ob.custName)
+			input(name = "custAddress" type = "text" required placeholder = "Customer Address" value=ob.custAddress)
+			<hr/>
+			Items
+			<br/>
+			input(name = "addItem" id="addItem" type="button" value="+Add")
+			<br/>
+			span#fooBar
+			<br/>
+			-for (var item in obj) {
+				input(name = "itemName" type = "text" required placeholder = "Item Name" value=obj[item].itemName)
+				input(name = "quantity" type = "Number" required placeholder = "Quantity" value=obj[item].quantity)
+				input(name = "price" type = "Number" required placeholder = "Price" value=obj[item].price)
+				input(name = "discount" type = "Number" required placeholder = "Discount" value=obj[item].discount)
+				input(name = "tax" type = "Number" required placeholder = "tax%" value=obj[item].tax)
+				<br/>
+				<br/>
+			- }
+			<hr/>
+			<br/>
+
+			input(name = "paidAmount" type = "Number" placeholder = "Paid Amount" value=ob.paidAmount)
+
+			<br/>
+			<br/>
+
+			select#state(name="state" value=ob.state)
+				option Draft
+				option Sent
+
+			<br/>
+			<br/>	       
+			
+			button(type = "Submit") Edit

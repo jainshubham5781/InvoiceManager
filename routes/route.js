@@ -47,6 +47,11 @@ router.route('/createInvoice')
 	.get(invoice.create_invoice_display)
 	.post(invoice.create_invoice);
 
+router.route('/editInvoice')
+	.get(invoice.edit_invoice_display)
+	.post(invoice.edit_invoice);
+
+
 router.get('/viewInvoice', invoice.view_invoice_display);
 router.post('/deleteInvoice', invoice.delete_invoice);
 router.post('/downloadPdf', invoice.downloadPdf);

@@ -9,7 +9,6 @@ html
 			h4 #{message}
 
 		if(invoiceResult)
-
 			//input(name = "testt" id ="testt" type = "text" value="ABC")
 
 			-var ob = JSON.parse(invoiceResult)
@@ -24,7 +23,7 @@ html
 						li= "CustomerAddress: " + ob[item].custAddress
 					</div>
 
-					<div class="editInvoice" hidden>
+					<div class="editInvoice1" hidden>
 						input(name = "custName" type = "text" required placeholder = "Customer Name" value = ob[item].custName)
 						input(name = "custAddress" type = "text" required placeholder = "Customer Address" value = ob[item].custAddress)
 					</div>
@@ -52,9 +51,9 @@ html
 						<br/>
 
 						if(ob[item].state == "Draft")
-							input(name = "editButton" id="editButton" type="button" value="Edit Invoice")
-							<br/>
-						<br/>
+							form(action = "/editInvoice" method = "Get")
+								input(id= "editItem" name = "editItem" type = "text" hidden value=itemDetail)
+								button(type = "Submit" id="editInvoice" value=ob[item] name="editInvoice") Edit Invoice
 
 						form(action = "/downloadPdf" method = "Post")
 							input(name = "itemDetail" type = "text" hidden value=itemDetail)
@@ -67,7 +66,6 @@ html
 					form(action = "/editInvoice" hidden method = "Post")
 								button(type = "Submit") Save
 	
-
 				<hr/>
 				<hr/>
 			- }	

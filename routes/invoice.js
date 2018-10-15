@@ -17,6 +17,7 @@ exports.create_invoice_display = function(req, res){
 exports.create_invoice = function(req, res){
 	console.log('CreateInvoice');
 	console.log(req.body);
+
 	if(req.body.paidAmount < 0){
 		res.render('CreateInvoice', {message: "Amount should be greater than 0!"});
 	}
@@ -24,20 +25,36 @@ exports.create_invoice = function(req, res){
 		var invoiceTotalAmount = 0;
 		const itemArray = new Promise(function(resolve, reject){
 			var itemsData = [];
-			var itemLength = req.body.itemName.length;
-			for(var i = 0; i < itemLength; i++){
-				var itemtotalAmount = (parseInt(req.body.price[i]) + parseInt(req.body.tax[i]*req.body.price[i]*0.01) - parseInt(req.body.discount[i]))*req.body.quantity[i];  
+			if(!Array.isArray(req.body.itemName)){
+				var itemtotalAmount = parseInt(parseInt(req.body.price) + (parseInt(req.body.tax)*parseInt(req.body.price)*0.01) - parseInt(req.body.discount)*parseInt(req.body.quantity));  
 				invoiceTotalAmount = invoiceTotalAmount + itemtotalAmount;
 				var itemData = {
-					itemId : "I" + i,
-					itemName : req.body.itemName[i],
-					quantity : req.body.quantity[i],
-					price : req.body.price[i],
-					discount : req.body.discount[i],
-					tax: req.body.tax[i],
+					itemId : "I0",
+					itemName : req.body.itemName,
+					quantity : req.body.quantity,
+					price : req.body.price,
+					discount : req.body.discount,
+					tax: req.body.tax,
 					totalAmount: itemtotalAmount
 				}
 				itemsData.push(itemData);
+			}
+			else{
+				var itemLength = req.body.itemName.length;
+				for(var i = 0; i < itemLength; i++){
+					var itemtotalAmount = parseInt(parseInt(req.body.price[i]) + (parseInt(req.body.tax[i])*parseInt(req.body.price[i])*0.01) - parseInt(req.body.discount[i]))*parseInt(req.body.quantity[i]);  
+					invoiceTotalAmount = invoiceTotalAmount + itemtotalAmount;
+					var itemData = {
+						itemId : "I" + i,
+						itemName : req.body.itemName[i],
+						quantity : req.body.quantity[i],
+						price : req.body.price[i],
+						discount : req.body.discount[i],
+						tax: req.body.tax[i],
+						totalAmount: itemtotalAmount
+					}
+					itemsData.push(itemData);
+				}
 			}
 			resolve(itemsData);
 		});
@@ -47,6 +64,7 @@ exports.create_invoice = function(req, res){
 			return result;
 		}
 		middleFunc().then(itemsArray => {
+			console.log(itemsArray);
 			var seqName = 'invoiceNumber';
 			var query = {_id: seqName},
 				update = {$inc: { seq_value: 1} },
@@ -54,6 +72,7 @@ exports.create_invoice = function(req, res){
 			Counter.getNextSeqValue(query, update, options).then(function(seqResult) {
 			 	var invoiceNumber = seqResult.seq_value;
 		     	var date = new Date();
+		     	console.log(invoiceTotalAmount);
 				var query = {email: req.session.email},
 				    update = { 
 				    	$push:{ 
@@ -106,7 +125,7 @@ exports.view_invoice_display = function(req, res){
 	console.log('View Invoice');	
 	var query = {email: req.session.email},
 		projection = {_id: 0, 'invoiceHistory': 1},
-		options = '';
+		options = {'invoiceHistory.$.invoiceNumber': 1};
 	Invoice.findInvoiceByEmail(query, projection, options).then(function(result) {
     	console.log("InvoiceDetail: " + result);
     	var ob = JSON.stringify(result);
@@ -192,7 +211,6 @@ exports.delete_invoice = function(req,res){
     }, function(err){
     		console.log("invoice Delete: " + err);
 	});
-
 }
 
 
@@ -232,6 +250,120 @@ exports.downloadPdf = function(req, res){
   			console.log(res);
   	});
 	res.redirect('/viewInvoice');
+}
+
+
+exports.edit_invoice_display = function(req, res){
+	console.log("Edit Invoice Page");
+	console.log(req.query.editItem);
+	console.log(req.query.editInvoice);
+	var invoiceDetail = JSON.parse(req.query.editInvoice);
+	res.render('editInvoice', {message: "Edit Invoice -" +invoiceDetail.invoiceNumber, invoiceResult: req.query.editInvoice, itemResult: req.query.editItem});
 
 }
 
+exports.edit_invoice = function(req, res){
+	console.log("Edit Invoice");
+	console.log(req.body);
+	var invoiceTotalAmount = 0;
+	
+	const itemArray = new Promise(function(resolve, reject){
+		var itemsData = [];
+		var itemLength = req.body.itemName.length;
+		for(var i = 0; i < itemLength; i++){
+			var itemtotalAmount = (parseInt(req.body.price[i]) + parseInt(req.body.tax[i]*req.body.price[i]*0.01) - parseInt(req.body.discount[i]))*req.body.quantity[i];  
+			invoiceTotalAmount = invoiceTotalAmount + itemtotalAmount;
+			var itemData = {
+				itemId : "I" + i,
+				itemName : req.body.itemName[i],
+				quantity : req.body.quantity[i],
+				price : req.body.price[i],
+				discount : req.body.discount[i],
+				tax: req.body.tax[i],
+				totalAmount: itemtotalAmount
+			}
+			itemsData.push(itemData);
+		}
+		resolve(itemsData);
+	});
+
+		var middleFunc = async()=> {
+			const result = await itemArray;
+			return result;
+		}
+		middleFunc().then(itemsArray => {
+
+			 	var invoiceNumber = req.body.invoiceNumber;
+			 	console.log(invoiceNumber.toString());
+		     	var date = new Date();
+				// var query = {email: req.session.email, "invoiceHistory.invoiceNumber" : invoiceNumber},
+				//     update = {
+				//     			$set: {
+				// 		    		"invoiceHistory.$.custName": req.body.custName, 
+				// 		    		"invoiceHistory.$.custAddress": req.body.custAddress, 
+				// 		    		"invoiceHistory.$.state": req.body.state, 
+				// 		    		"invoiceHistory.$.totalAmount": invoiceTotalAmount,
+				// 		    		"invoiceHistory.$.paidAmount": req.body.paidAmount
+				// 	    	}
+				//     };
+				// Invoice.editInvoice(query, update).then(function(invoiceResult) {
+				var query = {email: req.session.email},
+					update = { 
+					    	$pull:{ 
+					    		'invoiceHistory': {
+						    		invoiceNumber: req.body.invoiceNumber
+						  		}
+					    	}
+					};
+				Invoice.editInvoice(query, update).then(function(invoiceResult) {
+		    		console.log("Edited Invoice1: " + invoiceResult);
+	    			var query = {email: req.session.email},
+						update = { 
+						    	$push:{ 
+						    		invoiceHistory: {
+						    		invoiceNumber: req.body.invoiceNumber,
+						    		custName: req.body.custName, 
+						    		custAddress: req.body.custAddress, 
+						    		state: req.body.state, 
+						    		totalAmount: invoiceTotalAmount,
+						    		paidAmount: req.body.paidAmount,
+						    		date: date
+						  		}
+						    }
+					};
+					Invoice.editInvoice(query, update).then(function(invoiceResult) {
+				    	console.log("Edited Invoice2: " + invoiceResult);
+				  		var query = {invoiceNumber: invoiceNumber},
+						    update = { 
+						    	$set:{ 
+						    		itemDetails: itemsArray
+						    	}
+						    },
+							options = '';
+						Item.saveItems(query, update, options).then(function(itemResult) {
+					    	console.log("Edited Items: " + itemResult);
+							    		res.redirect('/home');
+					    }, function(err){
+					    		console.log("Edited Items: " + err);
+						});
+					 }, function(err){
+			    		console.log("Edited Invoice2: " + err);
+					});
+			    }, function(err){
+			    		console.log("Edited Invoice1: " + err);
+				});
+				//var message = "Edited Successfully"
+				//var encodedMessage = Buffer.from(message).toString('base64');
+				//res.redirect('/home');
+		    
+		})
+		.catch(err=> {
+			console.log("ERROR:"+ err);
+		});
+
+
+
+
+
+	
+}
